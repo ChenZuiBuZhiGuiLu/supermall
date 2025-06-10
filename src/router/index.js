@@ -1,24 +1,48 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+
+const Home = () => import('@/views/home/Home')
+const Category = () => import('@/views/category/Category')
+const ShopCart = () => import('@/views/shopcart/ShopCart')
+const Profile = () => import('@/views/profile/Profile')
+
+// 1. 保存原始 replace 方法
+const originalReplace = VueRouter.prototype.replace;
+
+// 2. 重写 replace 方法
+VueRouter.prototype.replace = function replace(location) {
+  return originalReplace.call(this, location).catch(err => {
+    if (err.name === 'NavigationDuplicated') {
+      return Promise.resolve(); // 忽略报错
+    }
+    return Promise.reject(err); // 其他错误照常抛出
+  });
+};
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
-]
+    {
+      path: "",
+      redirect: "/home"
+    },
+    {
+      path: "/home",
+      component: Home,
+    },
+    {
+      path: "/category",
+      component: Category,
+    },
+    {
+      path: "/shopcart",
+      component: ShopCart,
+    },
+    {
+      path: "/profile",
+      component: Profile,
+    },
+  ]
 
 const router = new VueRouter({
   mode: 'history',
